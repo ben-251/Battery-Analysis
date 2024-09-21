@@ -1,6 +1,6 @@
 # Imports
 import time as t
-import math
+import threading
 from redacted_file_paths import data_path
 
 # Constants
@@ -8,28 +8,33 @@ BATTERY_FILE_PATH = "/sys/class/power_supply/BAT0/capacity"
 LOW_END = 30.0
 HIGH_END = 100.0
 
-# Main Body
+class OutOfRangeError(BaseException): ...
+
 def find_battery():
 	with open(BATTERY_FILE_PATH, "r") as f:
 		capacity = float(f.read())
 	return capacity
 
-def import_periodically(interval_in_mins: float):
-	battery = find_battery()
-	interval_in_secs = interval_in_mins * 60
-
-	START = t.time()
-	while battery > LOW_END and battery < HIGH_END:
-		battery = find_battery()
-		elapsed_time = t.time()-START # written relative to start time (seconds)
-		time_ratio = round(elapsed_time/interval_in_secs)
-		if math.floor(time_ratio) == time_ratio:
-			store_current_battery(battery, time_ratio)
-
-def store_current_battery(battery:float, time_ratio:float):
+def store_current_battery(battery:float):
+	print("Storing...")
 	with open(data_path, "a") as f:
-		f.write(f"{time_ratio},{battery}")
+		f.write(f"{battery}\n")
 
-import_periodically(0.1)
+def update_current_battery():
+	battery = find_battery()
+	if battery < LOW_END or battery > HIGH_END:
+		raise OutOfRangeError("Out of range. Quitting...")
+	store_current_battery(battery)
 
+def update_battery_periodically(interval):
+	def wrapper():
+		try:
+			update_current_battery()
+		except OutOfRangeError as e:
+			print(e)
+			exit()
+		threading.Timer(interval, wrapper).start()  # Reschedule the next execution
 
+	# Start the first execution
+	threading.Timer(interval, wrapper).start()
+update_battery_periodically(20)
