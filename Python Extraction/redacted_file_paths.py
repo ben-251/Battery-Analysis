@@ -1,0 +1,1 @@
+battery_folder_path = "/home/ben/programming/R/Battery Analysis/Data/"

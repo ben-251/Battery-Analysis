@@ -1,0 +1,39 @@
+---
+title: "Lab 00 - Hello IDS!"
+author: "Ben Olanlokun"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+### Load Packages
+
+```{r load-packages, message=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+```
+
+### Load data and such
+
+```{r load-data}
+data6 <- read_csv("Data/6.csv")
+data7 <- read_csv("Data/7.csv")
+data8 <- read_csv("Data/6.csv") %>% 
+  filter(status %in% c("Charging", "Discharging"))
+
+graph <- ggplot(data8, aes(x = seq_along(battery)*0.5, y = battery)) + 
+  geom_line(color = "darkorchid", size = 1, alpha = 0.9, linetype = 2) + 
+  labs(x = "Time (Minutes)", 
+       y = "Battery (%)", 
+       title = "Battery use")
+
+graph
+```
+
+# Next section
+```{r next-graph} 
+graph2 <- ggplot(data7, mapping=aes(x=seq_along(battery), y = battery) +
+           geom_line(color = "maroon", size = 1))
+          
+graph2 
+```

@@ -1,0 +1,4 @@
+library(readr)
+X6 <- read_csv("Data/6.csv")
+View(X6)
+View(data)

@@ -1,1 +1,0 @@
-data_path = "/home/ben/programming/R/Battery Analysis/Data/battery.csv"
